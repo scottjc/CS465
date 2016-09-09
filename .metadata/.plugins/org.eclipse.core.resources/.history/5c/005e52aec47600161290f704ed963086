@@ -65,7 +65,7 @@ public class AES
 	public static void main(String[] args) 
 	{	
 		//TO CHANGE WITH VALUES WE WILL USE, JUST CHANGE THIS TO 1,2, OR 3!!!
-		int choice = 3;
+		int choice = 2;
 		
 		
 		String inputString = null;
