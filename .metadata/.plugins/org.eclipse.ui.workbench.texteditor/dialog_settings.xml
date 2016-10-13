@@ -2,22 +2,27 @@
 <section name="Workbench">
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
 		<item value="false" key="isRegEx"/>
-		<item value="encryptString" key="selection"/>
+		<item value="List" key="selection"/>
 		<item value="false" key="casesensitive"/>
 		<item value="false" key="incremental"/>
 		<item value="true" key="wrap"/>
 		<item value="false" key="wholeword"/>
 		<list key="findhistory">
-			<item value="encryptString"/>
-			<item value="encrpytString"/>
-			<item value="expandKeys"/>
-			<item value="printBlock"/>
-			<item value="printLIne"/>
-			<item value="encode"/>
+			<item value="list"/>
+			<item value="hmac2"/>
+			<item value="hmac1"/>
+			<item value="array"/>
 			<item value="encrypt"/>
-			<item value="makeBlock"/>
+			<item value="encode"/>
+			<item value="system.out"/>
+			<item value="block"/>
 		</list>
 		<list key="replacehistory">
+			<item value="toBlocks"/>
+			<item value="hmacNew"/>
+			<item value="hmacOrig"/>
+			<item value="collisionTestWrapper"/>
+			<item value="preImageTestWrapper"/>
 			<item value="secondInputString"/>
 			<item value=""/>
 		</list>
@@ -26,7 +31,7 @@
 		<item value="284" key="DIALOG_WIDTH"/>
 		<item value="1|Segoe UI|9.0|0|WINDOWS|1|-12|0|0|0|400|0|0|0|1|0|0|0|0|Segoe UI" key="DIALOG_FONT_NAME"/>
 		<item value="404" key="DIALOG_HEIGHT"/>
-		<item value="736" key="DIALOG_X_ORIGIN"/>
-		<item value="12" key="DIALOG_Y_ORIGIN"/>
+		<item value="1070" key="DIALOG_X_ORIGIN"/>
+		<item value="48" key="DIALOG_Y_ORIGIN"/>
 	</section>
 </section>

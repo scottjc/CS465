@@ -1,0 +1,85 @@
+package Project5;
+
+import java.math.BigInteger;
+
+public class RSA {
+
+	public static void main(String[] args) 
+	{
+		//RSA encryption c = m^e %n
+		//RSA decryption m = c^d %n
+		
+		//get ext Euclidan algorithmn up and running for calculating d and such.
+		//Select p and q, which are 2 512 bit primes.
+		 BigInteger p = new BigInteger("6997040548236306032270028142697844577679802860009390483825615834396766817911865846408328563633463004219619254639348141491179371158391819359706834377936017");
+		 BigInteger q = new BigInteger("8593701979078313474945043728666349994614714557320430419781846880808258697302068260916571720507008823663836468130075453764283766701743551377885890781118909");
+		// n = p*q, e = 65537
+		 BigInteger n = p.multiply(q);
+		 BigInteger e = new BigInteger("65537");
+		//phi(n) = (p-1)(q-1), which is relatively prime to 65537
+		 BigInteger phiN = p.subtract(BigInteger.valueOf(1)).multiply(q.subtract(BigInteger.valueOf(1)));
+		 BigInteger[] r = extendedEuc(22,55);//phiN,e);
+		 System.out.println(r[0]);
+		 
+		//calculate the secret exponent d s.t. e*d = 1 (mod phi(n))
+		//verify that for numbers m times less than n, ((m^e %n)^d)%n == m
+		//double[] temp = extendedEuc(212, 24);
+		//double gcd = temp[0];
+		
+	}
+
+
+	//This function will find what x^y is using the modular exponentiation algorithm.
+	public static BigInteger modExpo(BigInteger x, BigInteger y, BigInteger N)
+	{
+		System.out.println(x + " " + y + " " + N);
+
+		if (y == BigInteger.ZERO) return BigInteger.ONE;
+
+		BigInteger z = modExpo(x, y.divide(new BigInteger("2")), N);
+
+
+		if(y.mod(new BigInteger("2")) == BigInteger.ZERO)//Sees if the number is even of not.
+		{
+			//return ((long)Math.pow(z, 2)) % N;
+			return z.pow(2).mod(N);
+		}
+		else
+		{
+			//return (x * ((long)Math.pow(z, 2))) % N;
+			return x.multiply(z.pow(2)).mod(N);
+		}
+	}
+	
+	/*  
+	 This function will perform the Extended Euclidean algorithm
+     to find the GCD of a and b. We assume here that a and b
+     are non-negative (and not both zero). This function also
+     will return numbers j and k such that d = j*a + k*b, where d is the GCD of a and b.
+     https://cgi.csc.liv.ac.uk/~martin/teaching/comp202/Java/GCD.html
+	 */
+    public static BigInteger[] extendedEuc(BigInteger phiN, BigInteger e)
+    {
+        BigInteger[] ans = new BigInteger[3];
+        BigInteger q;
+
+        if (e.equals(0))  {  /*  If b = 0, then we're done...  */
+            ans[0] = phiN;
+            ans[1] = BigInteger.ONE;
+            ans[2] = BigInteger.ZERO;
+        }
+        else
+        {     
+        	/*  Otherwise, make a recursive function call  */ 
+            q = phiN.divide(e);
+            ans = extendedEuc (e, phiN.mod(e));
+            BigInteger temp = ans[1].subtract(ans[2].multiply(q));
+            ans[1] = ans[2];
+            ans[2] = temp;//cause sometimes we get a wierd 
+        }
+        System.out.println("gcd = " + ans[0] + ", x = " + ans[1] + ", y = " + ans[2]);//gcd , x, y
+        return ans;
+    }
+    
+}
+
