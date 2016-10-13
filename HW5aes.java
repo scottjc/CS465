@@ -14,8 +14,9 @@ public class HW5aes {
 	}
 
 	public static void main(String[] args) throws Exception {
-		//H.W. #5 AES. I assume we will need to use this alot in the next lab.
+		//H.W. #5 AES.
 		//https://docs.oracle.com/javase/7/docs/api/javax/crypto/Cipher.html
+		//http://stackoverflow.com/questions/13102788/is-there-any-sample-java-code-that-does-aes-encryption-exactly-like-this-website 
 		/*
 			GGGGGGGGGGGGGGG
 			GGGGGGGGGGGGGGG
@@ -23,16 +24,6 @@ public class HW5aes {
 			GGGGGGGGGGGGGGG
 			AAAAAAAAAAAAAAA
 			C
-		 */
-		/*
-		 *  Locate an AES encryption library for a programming language of your choice.
-	   			Write a short program to encrypt and decrypt the following file. Determine how to specify the mode and padding....
-				Submit the following (typeset it so that it is readable):
-
-				Description of the AES library you used (e.g., URL)
-				Source code snippets showing how to encrypt/decrypt using the library
-				Hex output of ciphertext in at least two modes (e.g., ECB and CBC)
-				Lessons learned - list of 2-5 items about your experience
 		 */
 
 		String keyHex = "00000000000000000000000000123456";
