@@ -21,10 +21,16 @@ public class DiffieHellman
     	BigInteger gttmp = new BigInteger("6786879591842003170888935955573243990293513472420357660127477921836739206240073386532817630466099355654377338077640710019075598687282671731622676774287483");
     	BigInteger ans = modExpo(gttmp, s, p);
     	System.out.println("message is " + ans);
+    	
+    	
+//    	g = new BigInteger("5");
+//    	p = new BigInteger("16");
+//    	s = new BigInteger("7");
+//    	BigInteger thing = modExpo(g, p, s);
     }
 
     
-    //This function will find what x^y is using the modular exponentiation algorithm.
+    //This function will find what x^y%z is using the modular exponentiation algorithm.
     static BigInteger modExpo(BigInteger x, BigInteger y, BigInteger N)
     {
         System.out.println(x + " " + y + " " + N);
@@ -37,11 +43,13 @@ public class DiffieHellman
         if(y.mod(new BigInteger("2")) == BigInteger.ZERO)//Sees if the number is even of not.
         {
             //return ((long)Math.pow(z, 2)) % N;
+        	//System.out.println("returning " + z.pow(2).mod(N));
             return z.pow(2).mod(N);
         }
         else
         {
             //return (x * ((long)Math.pow(z, 2))) % N;
+        	//System.out.println("returning " + x.multiply(z.pow(2)).mod(N));
         	return x.multiply(z.pow(2)).mod(N);
         }
     }
