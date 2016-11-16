@@ -1,0 +1,205 @@
+package Project7;
+
+import java.util.ArrayList;
+import java.util.Random;
+import java.io.FileWriter;
+import java.io.BufferedWriter;
+import java.io.IOException;
+
+public class Main 
+{
+	
+    public static void main(String[] args) 
+    {
+        //enter 'weak medium strong' as input for the type of password desired
+        final String TYPE = "weak";
+        final int PASSWORD_LENGTH = 6;
+
+        ArrayList<UserInfo> usersList = new ArrayList<>();
+        usersList.add(new UserInfo("aa", "1001"));
+        usersList.add(new UserInfo("bb", "1002"));
+        usersList.add(new UserInfo("cc", "1003"));
+        usersList.add(new UserInfo("dd", "1004"));
+        usersList.add(new UserInfo("ee", "1005"));
+        usersList.add(new UserInfo("ff", "1006"));
+        usersList.add(new UserInfo("gg", "1007"));
+        usersList.add(new UserInfo("hh", "1008"));
+        usersList.add(new UserInfo("ii", "1009"));
+        usersList.add(new UserInfo("jj", "1010"));
+        ArrayList<String> passwordsList = new ArrayList<>();
+        //always make 10 passwords and 10 corresponding shadow file entries
+        for (int i = 0; i < 10; i++)
+        {
+            passwordsList.add(makePassword(PASSWORD_LENGTH, TYPE));
+        }
+        makePasswordFile(TYPE, usersList);
+        makeShadowFile(TYPE, usersList, passwordsList);
+    }
+    
+    /**
+     create passwords at various strength levels. For each strength type, make a password that contains:
+     Only lowercase letters
+     Both lowercase and uppercase letters
+     Lower and uppercase letters, numeric digits, and punctuation
+     */
+    public static String makePassword(int num_chars, String level) 
+    {
+    	String NUMBERS = "0123456789";
+        String SPECIALS = "!#$%&()*+,-.:;<=>?@[]^_`{|}~";
+        String UPPERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        String LOWERS = "abcdefghijklmnopqrstuvwxyz";
+        String LETTERS = LOWERS + UPPERS;
+        String ALLCHARACTERS = LETTERS + NUMBERS + SPECIALS;
+        ArrayList<String> unusedCriteria = new ArrayList<>();
+        final Random random = new Random();
+
+        unusedCriteria.add(LOWERS);
+        String level_chars = LOWERS;
+        if (level.equals("medium") || level.equals("strong")) 
+        {
+            unusedCriteria.add(UPPERS);
+            level_chars = LETTERS;
+        }
+        if (level.equals("strong")) 
+        {
+            unusedCriteria.add(NUMBERS);
+            unusedCriteria.add(SPECIALS);
+            level_chars = ALLCHARACTERS;
+        }
+
+        Boolean done = false;
+        String result = "";
+        while (!done) 
+        {
+            result = "";
+            for (int i = 0; i < num_chars; i++) 
+            {
+                char randChar = level_chars.charAt(random.nextInt(level_chars.length()));
+                result += randChar;
+                if (!unusedCriteria.isEmpty()) 
+                {
+                    for (int j = 0; j < unusedCriteria.size(); j++) 
+                    {
+                        char [] toCheck = unusedCriteria.get(j).toCharArray();
+                        for (char ch: toCheck) 
+                        {
+                            if (ch == randChar) 
+                            {
+                                unusedCriteria.remove(j);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            if (unusedCriteria.isEmpty()) done = true;
+
+            //rest the criteria even if we are done, just in case
+            unusedCriteria = new ArrayList<>();
+            unusedCriteria.add(LOWERS);
+            if (level.equals("medium") || level.equals("strong")) 
+            {
+                unusedCriteria.add(UPPERS);
+            }
+            if (level.equals("strong")) 
+            {
+                unusedCriteria.add(NUMBERS);
+                unusedCriteria.add(SPECIALS);
+            }
+        }
+        return result;
+    }
+    
+    //the crypt algorithm based off of MD5
+    public static String crypt(String input) 
+    {
+        try 
+        {
+            java.security.MessageDigest md = java.security.MessageDigest.getInstance("MD5");
+            byte[] array = md.digest(input.getBytes());
+            StringBuffer sb = new StringBuffer();
+            for (int i = 0; i < array.length; ++i) 
+            {
+                sb.append(Integer.toHexString((array[i] & 0xFF) | 0x100).substring(1,3));
+            }
+            return sb.toString();
+        } 
+        catch (java.security.NoSuchAlgorithmException e)//in case they don't have MD5 
+        {
+        	 System.out.println("NoSuchAlgorithmException thrown");
+        }
+        return null;
+    }
+
+    public static void makeShadowFile(String level, ArrayList<UserInfo> users, ArrayList<String> passwords) 
+    {
+        // The name of the file to open.
+        String fileName = "files/" + level + "/etc/shadow";
+
+        try 
+        {
+            // Assume default encoding.
+            FileWriter fileWriter = new FileWriter(fileName);
+            // Always wrap FileWriter in BufferedWriter.
+            BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+
+            for (int i = 0; i < 10; i++) 
+            {
+                // Note that write() does not automatically append a newline character.
+                String encryptedPassword = crypt(passwords.get(i) + users.get(i).getSalt());
+                bufferedWriter.write(users.get(i).username + ":$1$" + encryptedPassword);
+                //bufferedWriter.write(users.get(i).username + ":$1$" + encryptedPassword + ":1478027133:0:99999:7:::");
+                bufferedWriter.newLine();
+            }
+            bufferedWriter.close();
+        }
+        catch(IOException ex) 
+        {
+            System.out.println("Error writing to file '" + fileName + "'");
+        }
+    }
+    
+    public static void makePasswordFile(String level, ArrayList<UserInfo> users) 
+    {
+        // The file path name of the file to create.
+        String fileName = "files/" + level + "/etc/passwd";
+        try 
+        {
+        	// Assume default encoding.
+        	FileWriter fileWriter = new FileWriter(fileName);
+        	// Always wrap FileWriter in BufferedWriter.
+        	BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+
+        	for (int i = 0; i < 10; i++) 
+        	{
+        		// Note that write() does not automatically
+        		// append a newline character.
+        		bufferedWriter.write(users.get(i).username + ":x:" + users.get(i).id + ":5:UserIDInfo:homedir:/bin/bash");
+        		bufferedWriter.newLine();
+        	}
+            bufferedWriter.close();
+        }
+        catch(IOException ex) 
+        {
+            System.out.println("Error writing to file '" + fileName + "'");
+        }
+    }
+}
+
+class UserInfo 
+{
+    public String username;
+    public String id;
+
+    UserInfo(String un, String ui) 
+    {
+        username = un;
+        id = ui;
+    }
+    
+    //function to get a random salt, which isn't too strong if you ask me!
+    public String getSalt() 
+    {
+        return "salt" + username + id;
+    }
+}

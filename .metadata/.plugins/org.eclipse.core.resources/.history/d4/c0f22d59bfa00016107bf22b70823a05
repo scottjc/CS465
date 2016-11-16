@@ -1,0 +1,201 @@
+package Project7;
+
+import java.util.ArrayList;
+import java.util.Random;
+import java.io.FileWriter;
+import java.io.BufferedWriter;
+import java.io.IOException;
+
+public class Main 
+{
+	
+    public static void main(String[] args) 
+    {
+        //weak medium strong
+        final String TYPE = "weak";
+        final int PASSWORD_LENGTH = 4;
+
+        ArrayList<User> users = new ArrayList<>();
+        users.add(new User("a", "1001"));users.add(new User("b", "1002"));users.add(new User("c", "1003"));users.add(new User("d", "1004"));users.add(new User("e", "1005"));
+        users.add(new User("f", "1006"));users.add(new User("g", "1007"));users.add(new User("h", "1008"));users.add(new User("i", "1009"));users.add(new User("j", "1010"));
+        ArrayList<String> passwords = new ArrayList<>();
+        for (int i = 0; i < 10; i++)
+        {
+            passwords.add(getPassword(PASSWORD_LENGTH, TYPE));
+        }
+
+        makePasswordFile(TYPE, users);
+        makeShadowFile(TYPE, users, passwords);
+    }
+    
+    /**
+     create passwords at various strength levels. For each strength type, make a password that contains:
+     Only lowercase letters
+     Both lowercase and uppercase letters
+     Lower and uppercase letters, numeric digits, and punctuation
+     */
+    public static String getPassword(int num_chars, String type) 
+    {
+        String LOWERS = "abcdefghijklmnopqrstuvwxyz";
+        String UPPERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        String NUMBERS = "0123456789";
+        String SPECIALS = "!#$%&()*+,-.:;<=>?@[]^_`{|}~";
+        String LETTERS = LOWERS + UPPERS;
+        String CHARACTERS = LETTERS + NUMBERS + SPECIALS;
+        ArrayList<String> needToUse = new ArrayList<>();
+        final Random random = new Random();
+
+        needToUse.add(LOWERS);
+        String type_chars = LOWERS;
+        if (type.equals("medium") || type.equals("strong")) 
+        {
+            needToUse.add(UPPERS);
+            type_chars = LETTERS;
+        }
+        if (type.equals("strong")) 
+        {
+            needToUse.add(NUMBERS);
+            needToUse.add(SPECIALS);
+            type_chars = CHARACTERS;
+        }
+
+        Boolean valid = false;
+        String result = "";
+        while (!valid) {
+            result = "";
+            for (int c = 0; c < num_chars; c++) {
+                char randChar = type_chars.charAt(random.nextInt(type_chars.length()));
+                result += randChar;
+                if (!needToUse.isEmpty()) {
+                    for (int n = 0; n < needToUse.size(); n++) 
+                    {
+                        char [] toCheck = needToUse.get(n).toCharArray();
+                        for (char ch: toCheck) 
+                        {
+                            if (ch == randChar) 
+                            {
+                                needToUse.remove(n);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            if (needToUse.isEmpty()) valid = true;
+
+            needToUse = new ArrayList<>();
+            needToUse.add(LOWERS);
+            if (type.equals("medium") || type.equals("strong")) 
+            {
+                needToUse.add(UPPERS);
+            }
+            if (type.equals("strong")) 
+            {
+                needToUse.add(NUMBERS);
+                needToUse.add(SPECIALS);
+            }
+        }
+        return result;
+    }
+
+    public static void makePasswordFile(String type, ArrayList<User> users) 
+    {
+        // The name of the file to create.
+        String fileName = "files/" + type + "/etc/passwd";
+
+        try 
+        {
+        	// Assume default encoding.
+        	FileWriter fileWriter = new FileWriter(fileName);
+
+        	// Always wrap FileWriter in BufferedWriter.
+        	BufferedWriter bufferedWriter =
+        			new BufferedWriter(fileWriter);
+
+        	for (int i = 0; i < 10; i++) 
+        	{
+        		// Note that write() does not automatically
+        		// append a newline character.
+        		bufferedWriter.write(users.get(i).username + ":x:" + users.get(i).userId + ":5:UserIDInfo:homedir:/bin/bash");
+        		bufferedWriter.newLine();
+        	}
+
+        	// Always close files.
+            bufferedWriter.close();
+        }
+        catch(IOException ex) 
+        {
+            System.out.println("Error writing to file '" + fileName + "'");
+        }
+    }
+
+    public static String MD5(String input) 
+    {
+        try 
+        {
+            java.security.MessageDigest md = java.security.MessageDigest.getInstance("MD5");
+            byte[] array = md.digest(input.getBytes());
+            StringBuffer sb = new StringBuffer();
+            for (int i = 0; i < array.length; ++i) 
+            {
+                sb.append(Integer.toHexString((array[i] & 0xFF) | 0x100).substring(1,3));
+            }
+            return sb.toString();
+        } 
+        catch (java.security.NoSuchAlgorithmException e) 
+        {
+        	 System.out.println("NoSuchAlgorithmException thrown");
+        }
+        return null;
+    }
+
+    public static void makeShadowFile(String type, ArrayList<User> users, ArrayList<String> passwords) 
+    {
+        // The name of the file to open.
+        String fileName = "files/" + type + "/etc/shadow";
+
+        try 
+        {
+            // Assume default encoding.
+            FileWriter fileWriter =
+                    new FileWriter(fileName);
+
+            // Always wrap FileWriter in BufferedWriter.
+            BufferedWriter bufferedWriter =
+                    new BufferedWriter(fileWriter);
+
+            for (int i = 0; i < 10; i++) {
+                // Note that write() does not automatically
+                // append a newline character.
+
+                String encryptedPassword = MD5(passwords.get(i) + users.get(i).getSalt());
+
+                bufferedWriter.write(users.get(i).username + ":$1$" + encryptedPassword + ":1478027133:0:99999:7:::");
+                bufferedWriter.newLine();
+            }
+
+            // Always close files.
+            bufferedWriter.close();
+        }
+        catch(IOException ex) 
+        {
+            System.out.println("Error writing to file '" + fileName + "'");
+        }
+    }
+}
+
+class User 
+{
+    public String username;
+    public String userId;
+    public String getSalt() 
+    {
+        return "salt" + username + userId;
+    }
+
+    User(String un, String ui) 
+    {
+        username = un;
+        userId = ui;
+    }
+}
